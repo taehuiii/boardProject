@@ -1,6 +1,7 @@
 package boardProject.infra.security.jwt
 
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
@@ -16,6 +17,13 @@ class JwtPlugin(
     @Value("eyJhbGciOiJIUzI1NiJ9.eyJJc3N1ZXIiOiJ0ZWFtNS5iYWNrb2ZmaWNlIiwiaWF0IjoxNzE4MjU3OTgyfQ.9JMrJy0t48PhuYJLx9KLlaAWQ9arWnSPMsedGBW0T5U") private val secret: String,
     @Value("168") private val accessTokenExpirationHour: Long,
 ) {
+
+    fun validateToken(jwt: String): Result<Jws<Claims>> {
+        return kotlin.runCatching {
+            val key = Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt)
+        }
+    }
 
     fun generateAccessToken(subject: String, nickname: String): String {
         return generateToken(subject, nickname, Duration.ofHours(accessTokenExpirationHour))
