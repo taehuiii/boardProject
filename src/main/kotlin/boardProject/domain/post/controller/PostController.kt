@@ -3,6 +3,7 @@ package boardProject.domain.post.controller
 import boardProject.domain.post.dto.CreatePostRequest
 import boardProject.domain.post.dto.PostResponse
 import boardProject.domain.post.dto.PostsResponse
+import boardProject.domain.post.dto.UpdatePostRequest
 import boardProject.domain.post.service.PostService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -30,6 +31,15 @@ class PostController(
         @RequestBody request: CreatePostRequest
     ): ResponseEntity<PostResponse> {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(token, request))
+    }
+
+    @PutMapping("/{postId}")
+    fun updatePost(
+        @RequestHeader("Authorization") token: String,
+        @PathVariable postId: Long,
+        @RequestBody request: UpdatePostRequest
+    ): ResponseEntity<PostResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(postService.updatePost(token, request))
     }
 
 
