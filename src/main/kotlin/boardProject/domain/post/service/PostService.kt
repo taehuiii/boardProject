@@ -44,7 +44,8 @@ class PostService(
             title = request.title,
             content = request.content,
             nickname = author.nickname,
-            createdAt = request.createdAt
+            createdAt = request.createdAt,
+            member = author,
         )
 
         postRepository.save(post)

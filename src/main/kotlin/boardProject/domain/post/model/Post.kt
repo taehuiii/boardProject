@@ -1,5 +1,6 @@
 package boardProject.domain.post.model
 
+import boardProject.domain.auth.model.Member
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -19,6 +20,10 @@ class Post(
     @Column(name = "createdAt", nullable = false)
     var createdAt: LocalDateTime,
 
+    @ManyToOne
+    @Column(name = "member_id", nullable = false)
+    val member: Member,
+
     ) {
 
     @Id
@@ -26,13 +31,14 @@ class Post(
     val id: Long? = null
 
     companion object {
-        fun of(title: String, content: String, nickname: String, createdAt: LocalDateTime): Post {
+        fun of(title: String, content: String, nickname: String, createdAt: LocalDateTime, member: Member): Post {
 
             return Post(
                 title = title,
                 content = content,
                 nickname = nickname,
                 createdAt = createdAt,
+                member = member,
             )
         }
     }
