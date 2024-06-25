@@ -7,10 +7,7 @@ import boardProject.domain.auth.dto.SignUpResponse
 import boardProject.domain.auth.service.MemberAuthService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/auth")
@@ -29,6 +26,15 @@ class MemberAuthController(
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(memberAuthService.login(loginRequest))
+    }
+
+    @GetMapping("/check-nickname")
+    fun checkNickname(@RequestParam nickname: String): ResponseEntity<Void> {
+        return if (memberAuthService.isNicknameAvailable(nickname)) {
+            ResponseEntity.status(HttpStatus.OK).build()
+        } else {
+            ResponseEntity.status(HttpStatus.CONFLICT).build()
+        }
     }
 
 

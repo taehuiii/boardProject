@@ -12,6 +12,7 @@ import boardProject.domain.exception.RecheckingPasswordFailedException
 import boardProject.infra.security.jwt.JwtPlugin
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MemberAuthService(
@@ -20,6 +21,7 @@ class MemberAuthService(
     private val passwordEncoder: PasswordEncoder,
 ) {
 
+    @Transactional
     fun signUp(request: SignUpRequest): SignUpResponse {
 
         if (memberRepository.existsByNickname(request.nickname)) {
@@ -40,6 +42,7 @@ class MemberAuthService(
         return SignUpResponse.from(member)
     }
 
+    @Transactional
     fun login(request: LoginRequest): LoginResponse {
 
         val member = memberRepository.findByNickname(request.nickname)
@@ -56,5 +59,10 @@ class MemberAuthService(
             )
         )
 
+    }
+
+    @Transactional
+    fun isNicknameAvailable(nickname: String): Boolean {
+        return !memberRepository.existsByNickname(nickname)
     }
 }
