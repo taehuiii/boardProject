@@ -10,12 +10,14 @@ import boardProject.domain.exception.ExistingNicknameException
 import boardProject.domain.exception.InvalidCredentialException
 import boardProject.domain.exception.RecheckingPasswordFailedException
 import boardProject.infra.security.jwt.JwtPlugin
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class MemberAuthService(
     private val memberRepository: MemberRepository,
     private val jwtPlugin: JwtPlugin,
+    private val passwordEncoder: PasswordEncoder,
 ) {
 
     fun signUp(request: SignUpRequest): SignUpResponse {
@@ -30,7 +32,7 @@ class MemberAuthService(
 
         val member = Member.of(
             nickname = request.nickname,
-            password = request.password, //todo : 암호화해서 저장
+            password = passwordEncoder.encode(request.password),
         )
 
         memberRepository.save(member)
@@ -42,7 +44,7 @@ class MemberAuthService(
 
         val member = memberRepository.findByNickname(request.nickname)
 
-        if (member == null || member.password != request.password) { //TODO: PASSWORD ENCODER?
+        if (member == null || !passwordEncoder.matches(member.password, request.password)) {
             throw InvalidCredentialException()
         }
 
