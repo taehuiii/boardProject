@@ -2,12 +2,12 @@ package boardProject.domain.post.service
 
 import boardProject.domain.auth.model.Member
 import boardProject.domain.auth.repository.MemberRepository
+import boardProject.domain.exception.AlreadyDeletedException
 import boardProject.domain.exception.InvalidCredentialException
 import boardProject.domain.exception.ModelNotFoundException
-import boardProject.domain.post.dto.CreatePostRequest
-import boardProject.domain.post.dto.PostResponse
-import boardProject.domain.post.dto.PostsResponse
-import boardProject.domain.post.dto.UpdatePostRequest
+import boardProject.domain.post.dto.post.CreatePostRequest
+import boardProject.domain.post.dto.post.PostsResponse
+import boardProject.domain.post.dto.post.UpdatePostRequest
 import boardProject.domain.post.model.Post
 import boardProject.domain.post.repository.PostRepository
 import boardProject.infra.security.jwt.JwtPlugin
@@ -23,23 +23,26 @@ class PostService(
     ) {
 
     fun getPosts(): List<PostsResponse> {
-        var posts: List<Post> = postRepository.findAll() //todo?: throw ModelNotFoundException("Post, postId")
+
+        var posts: List<Post> = postRepository.findAllByDeletedAtIsNull() ?: throw ModelNotFoundException("Post", null)
+
         posts = posts.sortedByDescending { it.createdAt }
         return PostsResponse.from(posts)
     }
 
-    fun getPostById(postId: Long): PostResponse {
-        val post = postRepository.findPostById(postId) ?: throw ModelNotFoundException("Post", postId)
-        return PostResponse.from(post)
+    fun getPostById(postId: Long): PostsResponse {
+        val post = postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+        if (post.isDeleted()) {
+            throw AlreadyDeletedException("already deleted item", postId)
+        }
+        return PostsResponse.from(post)
     }
 
     @Transactional
-    fun createPost(token: String, request: CreatePostRequest): PostResponse {
+    fun createPost(token: String, request: CreatePostRequest): PostsResponse {
 
         val author = accessInfo(token)
 
-
-        //4. 포스트 생성해서 저장
         val post = Post.of(
             title = request.title,
             content = request.content,
@@ -50,13 +53,13 @@ class PostService(
 
         postRepository.save(post)
 
-        return PostResponse.from(post)
+        return PostsResponse.from(post)
 
 
     }
 
     @Transactional
-    fun updatePost(token: String, postId: Long, request: UpdatePostRequest): PostResponse {
+    fun updatePost(token: String, postId: Long, request: UpdatePostRequest): PostsResponse {
 
         val access = accessInfo(token)
         val post = validateAuthor(postId, access)
@@ -66,7 +69,7 @@ class PostService(
         post.content = request.title
         //todo: dirty checking ?
 
-        return PostResponse.from(post)
+        return PostsResponse.from(post)
 
 
     }
@@ -74,16 +77,14 @@ class PostService(
     @Transactional
     fun deletePost(token: String, postId: Long) {
 
-        //todo :  soft delete ?
-        //todo : findPostByIdAndDeletedAtIsNull
-
         val access = accessInfo(token)
         val post = validateAuthor(postId, access)
 
-        postRepository.delete(post)
+        post.delete()
 
     }
 
+    //todo : comment랑 같이 쓸 수 있게 따로 빼는건 어떨지
     fun accessInfo(token: String): Member {
         //1. 토큰 검증하고
         val result = jwtPlugin.validateToken(token)
@@ -106,16 +107,16 @@ class PostService(
 
     fun validateAuthor(postId: Long, accessInfo: Member): Post {
 
-        //todo: findByIdOrNull / findPostByIdAndDeletedAtIsNull
-        val post = postRepository.findPostById(postId) ?: throw ModelNotFoundException("post", postId) //todo : ornull?
-        if (post.nickname == accessInfo.nickname) {
-            return post
-        } else {
+        val post =
+            postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("post", postId)
+
+
+        if (post.nickname != accessInfo.nickname) {
             //todo : UnauthorizedAccessException
         }
 
-        //todo : return 수정
         return post
     }
+
 
 }

@@ -38,9 +38,15 @@ class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(AlreadyDeletedException::class)
+    fun handleInvalidRequest(e: AlreadyDeletedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.GONE).body(ErrorResponse(e.message))
+    }
+
     @ExceptionHandler(InvalidCredentialException::class)
     fun handleInvalidCredential(e: InvalidCredentialException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse(e.message))
     }
+
 
 }

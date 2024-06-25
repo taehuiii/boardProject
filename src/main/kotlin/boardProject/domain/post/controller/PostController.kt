@@ -1,9 +1,8 @@
 package boardProject.domain.post.controller
 
-import boardProject.domain.post.dto.CreatePostRequest
-import boardProject.domain.post.dto.PostResponse
-import boardProject.domain.post.dto.PostsResponse
-import boardProject.domain.post.dto.UpdatePostRequest
+import boardProject.domain.post.dto.post.CreatePostRequest
+import boardProject.domain.post.dto.post.PostsResponse
+import boardProject.domain.post.dto.post.UpdatePostRequest
 import boardProject.domain.post.service.PostService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -21,7 +20,7 @@ class PostController(
     }
 
     @GetMapping("/{postId}")
-    fun getPostById(@PathVariable postId: Long): ResponseEntity<PostResponse> {
+    fun getPostById(@PathVariable postId: Long): ResponseEntity<PostsResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(postService.getPostById(postId))
     }
 
@@ -29,7 +28,7 @@ class PostController(
     fun createPost(
         @RequestHeader("Authorization") token: String,
         @RequestBody request: CreatePostRequest
-    ): ResponseEntity<PostResponse> {
+    ): ResponseEntity<PostsResponse> {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(token, request))
     }
 
@@ -38,8 +37,17 @@ class PostController(
         @RequestHeader("Authorization") token: String,
         @PathVariable postId: Long,
         @RequestBody request: UpdatePostRequest
-    ): ResponseEntity<PostResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(postService.updatePost(token, request))
+    ): ResponseEntity<PostsResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(postService.updatePost(token, postId, request))
+    }
+
+    @DeleteMapping("/{postID}")
+    fun deletePost(
+        @RequestHeader("Authorization") token: String,
+        @PathVariable postId: Long,
+    ): ResponseEntity<Unit> {
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT).body(postService.deletePost(token, postId))
     }
 
 

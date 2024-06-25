@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface PostRepository : JpaRepository<Post, Long> {
-    override fun findAll(): List<Post>
-    fun findPostById(PostId: Long): Post?
+    fun findAllByDeletedAtIsNull(): List<Post>?
+
+    fun findPostByIdOrNull(postId: Long): Post?
 }

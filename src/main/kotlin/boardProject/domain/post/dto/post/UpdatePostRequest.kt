@@ -1,4 +1,4 @@
-package boardProject.domain.post.dto
+package boardProject.domain.post.dto.post
 
 data class UpdatePostRequest(
 
