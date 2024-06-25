@@ -26,9 +26,9 @@ class Post(
     @Column(name = "member_id", nullable = false)
     val member: Member,
 
-    //todo
-//    @Column(name = "updated_at", nullable = false)
-//    var updatedAt: LocalDateTime,
+
+    @Column(name = "updated_at", nullable = true)
+    var updatedAt: LocalDateTime? = null,
 
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null,
@@ -49,8 +49,16 @@ class Post(
     }
 
     fun update(request: UpdatePostRequest) {
-        title = request.title
-        content = request.content
+        if (!isDeleted()) {
+            validateTitleLength(request.title)
+            validateContentLength(request.content)
+
+            title = request.title
+            content = request.content
+            updatedAt = LocalDateTime.now()
+        } else {
+            throw AlreadyDeletedException("already deleted item", id)
+        }
     }
 
     fun isDeleted(): Boolean {

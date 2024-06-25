@@ -1,6 +1,7 @@
 package boardProject.domain.post.model
 
 import boardProject.domain.auth.model.Member
+import boardProject.domain.exception.AlreadyDeletedException
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -22,27 +23,47 @@ class Comment(
     @Column(name = "member_id", nullable = false)
     val member: Member,
 
-//    @Column(name = "updated_at", nullable = false)
-//    var updatedAt: LocalDateTime,
-//
-//    @Column(name = "deleted_at")
-//    var deletedAt: LocalDateTime?,
+    @Column(name = "updated_at", nullable = true)
+    var updatedAt: LocalDateTime? = null,
 
-) {
+    @Column(name = "deleted_at")
+    var deletedAt: LocalDateTime? = null,
+
+    ) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
     fun update(newContent: String) {
-        //todo : validate length
-        content = newContent
-        //updatedAt = LocalDateTime.now()
+        validateCommentLength(content)
+
+        if (!isDeleted()) {
+            content = newContent
+            updatedAt = LocalDateTime.now()
+        } else {
+            throw AlreadyDeletedException("already deleted item", id)
+        }
+
 
     }
 
+    fun delete() {
+        if (!isDeleted()) {
+            deletedAt = LocalDateTime.now()
+        } else {
+            throw AlreadyDeletedException("already deleted item", id)
+        }
+    }
+
+    fun isDeleted(): Boolean {
+        if (deletedAt == null) {
+            return false
+        }
+        return true
+    }
+
     companion object {
-        //fun validate Length
 
         private fun validateCommentLength(newContent: String) {
             if (newContent.isEmpty() || newContent.length > 1000) {
@@ -60,7 +81,7 @@ class Comment(
                 content = content,
                 createdAt = timestamp,
                 post = post,
-                member = member
+                member = member,
             )
         }
     }

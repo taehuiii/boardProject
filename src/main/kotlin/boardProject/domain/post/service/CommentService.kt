@@ -1,13 +1,17 @@
 package boardProject.domain.post.service
 
 import boardProject.domain.auth.model.Member
+import boardProject.domain.exception.AlreadyDeletedException
 import boardProject.domain.exception.ModelNotFoundException
+import boardProject.domain.exception.UnauthorizedAccessException
 import boardProject.domain.post.dto.comment.CommentRequest
 import boardProject.domain.post.dto.comment.CommentsResponse
 import boardProject.domain.post.model.Comment
+import boardProject.domain.post.model.Post
 import boardProject.domain.post.repository.CommentRepository
 import boardProject.domain.post.repository.PostRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 
 @Service
@@ -19,19 +23,21 @@ class CommentService(
     ) {
 
     fun getComments(postId: Long): List<CommentsResponse> {
-        val post = postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("post", postId)
+        checkPostDeletedAndReturn(postId)
+
         val comments =
             commentRepository.findCommentByPostIdOrNull(postId) ?: throw ModelNotFoundException("comment", postId)
 
         return CommentsResponse.from(comments)
     }
 
+    @Transactional
     fun addComment(token: String, postId: Long, request: CommentRequest): CommentsResponse {
         //validate token
         val author = postService.accessInfo(token)
 
         //post 찾기
-        val post = postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+        val post = checkPostDeletedAndReturn(postId)
 
         //댓글 생성
         val comment = Comment.of(
@@ -42,24 +48,27 @@ class CommentService(
         return CommentsResponse.from(comment)
     }
 
+    @Transactional
     fun updateComment(token: String, postId: Long, commentId: Long, request: CommentRequest): CommentsResponse {
-        //todo : post delete여부 체크
+
+        checkPostDeletedAndReturn(postId)
+
 
         val comment = validateAuthor(commentId, postService.accessInfo(token))
-
         comment.update(request.content)
+
 
         return CommentsResponse.from(comment)
 
     }
 
+    @Transactional
     fun deleteComment(token: String, postId: Long, commentId: Long) {
-        //todo : post delete여부 체크
+        checkPostDeletedAndReturn(postId)
 
         val comment = validateAuthor(commentId, postService.accessInfo(token))
+        comment.delete()
 
-        //todo : softDelete
-        commentRepository.delete(comment)
     }
 
     fun validateAuthor(commentId: Long, accessInfo: Member): Comment {
@@ -69,10 +78,18 @@ class CommentService(
         )
 
         if (accessInfo != comment.member) {
-            //todo : UnauthorizedAccessException
+            throw UnauthorizedAccessException(itemId = commentId, memberId = accessInfo.id)
         }
 
         return comment
+    }
+
+    fun checkPostDeletedAndReturn(postId: Long): Post {
+        val post = postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+        if (post.isDeleted()) {
+            throw AlreadyDeletedException("post is already deleted", itemId = postId)
+        }
+        return post
     }
 
 
