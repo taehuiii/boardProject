@@ -5,6 +5,7 @@ import boardProject.domain.auth.repository.MemberRepository
 import boardProject.domain.exception.AlreadyDeletedException
 import boardProject.domain.exception.InvalidCredentialException
 import boardProject.domain.exception.ModelNotFoundException
+import boardProject.domain.exception.UnauthorizedAccessException
 import boardProject.domain.post.dto.post.CreatePostRequest
 import boardProject.domain.post.dto.post.PostsResponse
 import boardProject.domain.post.dto.post.UpdatePostRequest
@@ -33,7 +34,7 @@ class PostService(
     fun getPostById(postId: Long): PostsResponse {
         val post = postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
         if (post.isDeleted()) {
-            throw AlreadyDeletedException("already deleted item", postId)
+            throw AlreadyDeletedException(itemId = postId)
         }
         return PostsResponse.from(post)
     }
@@ -112,7 +113,7 @@ class PostService(
 
 
         if (post.nickname != accessInfo.nickname) {
-            //todo : UnauthorizedAccessException
+            throw UnauthorizedAccessException(itemId = postId, memberId = accessInfo.id)
         }
 
         return post
