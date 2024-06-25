@@ -43,9 +43,17 @@ class Comment(
 
     companion object {
         //fun validate Length
+
+        private fun validateCommentLength(newContent: String) {
+            if (newContent.isEmpty() || newContent.length > 1000) {
+                throw IllegalArgumentException("댓글의 내용은 1자 이상, 1000자 이하여야합니다.")
+            }
+        }
+
         fun of(content: String, post: Post, member: Member): Comment {
 
-            //validate
+            validateCommentLength(content)
+
             val timestamp = LocalDateTime.now()
 
             return Comment(

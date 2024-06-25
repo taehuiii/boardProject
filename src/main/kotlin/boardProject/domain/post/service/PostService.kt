@@ -65,10 +65,7 @@ class PostService(
         val access = accessInfo(token)
         val post = validateAuthor(postId, access)
 
-        //todo : post.update 함수 구현
-        post.title = request.title
-        post.content = request.title
-        //todo: dirty checking ?
+        post.update(request)
 
         return PostsResponse.from(post)
 
