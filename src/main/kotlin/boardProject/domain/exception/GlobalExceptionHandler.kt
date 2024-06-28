@@ -1,5 +1,6 @@
 package boardProject.domain.exception
 
+import ModelNotFoundException
 import boardProject.domain.exception.dto.ErrorResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
