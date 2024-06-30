@@ -14,7 +14,14 @@ class Member(
     @Column(name = "password", nullable = false)
     var password: String,
 
-    ) {
+    @Column(name = "email", nullable = false, unique = true)
+    var email: String,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    var role: Role
+
+) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,13 +58,16 @@ class Member(
         }
 
 
-        fun of(nickname: String, password: String): Member {
+        //todo : role enum으로 관리
+        fun of(nickname: String, password: String, email: String, role: Role): Member {
             validateNickname(nickname)
             validatePassword(nickname, password)
 
             return Member(
                 nickname = nickname,
                 password = password,
+                email = email,
+                role = role,
             )
 
         }

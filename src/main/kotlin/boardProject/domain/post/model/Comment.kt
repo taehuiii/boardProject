@@ -16,11 +16,11 @@ class Comment(
     var createdAt: LocalDateTime,
 
     @ManyToOne
-    @Column(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     val post: Post,
 
     @ManyToOne
-    @Column(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
 
     @Column(name = "updated_at", nullable = true)

@@ -35,6 +35,8 @@ class MemberAuthService(
         val member = Member.of(
             nickname = request.nickname,
             password = passwordEncoder.encode(request.password),
+            email = request.email,
+            role = request.role,
         )
 
         memberRepository.save(member)
@@ -47,7 +49,7 @@ class MemberAuthService(
 
         val member = memberRepository.findByNickname(request.nickname)
 
-        if (member == null || !passwordEncoder.matches(member.password, request.password)) {
+        if (member == null || !passwordEncoder.matches(request.password, member.password)) {
             throw InvalidCredentialException()
         }
 
@@ -55,7 +57,8 @@ class MemberAuthService(
         return LoginResponse.from(
             jwtPlugin.generateAccessToken(
                 subject = member.id.toString(),
-                nickname = member.nickname
+                email = member.email,
+                role = member.role,
             )
         )
 

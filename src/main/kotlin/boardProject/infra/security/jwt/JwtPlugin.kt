@@ -1,5 +1,6 @@
 package boardProject.infra.security.jwt
 
+import boardProject.domain.auth.model.Role
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
@@ -25,13 +26,13 @@ class JwtPlugin(
         }
     }
 
-    fun generateAccessToken(subject: String, nickname: String): String {
-        return generateToken(subject, nickname, Duration.ofHours(accessTokenExpirationHour))
+    fun generateAccessToken(subject: String, email: String, role: Role): String {
+        return generateToken(subject, email, role, Duration.ofHours(accessTokenExpirationHour))
     }
 
-    private fun generateToken(subject: String, nickname: String, expirationPeriod: Duration?): String {
+    private fun generateToken(subject: String, email: String, role: Role, expirationPeriod: Duration?): String {
         val claims: Claims = Jwts.claims()
-            .add(mapOf("nickname" to nickname))
+            .add(mapOf("email" to email, "role" to role))
             .build()
 
         val key = Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8)) //todo

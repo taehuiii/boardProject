@@ -1,4 +1,4 @@
-package boardProject.infra.security.jwt
+package boardProject.infra.security.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

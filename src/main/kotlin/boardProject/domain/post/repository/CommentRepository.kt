@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CommentRepository : JpaRepository<Comment, Long> {
 
-    fun findCommentByPostIdOrNull(postId: Long): List<Comment>?
-    fun findCommentByCommentIdOrNull(commentId: Long): Comment?
+    fun findByPost_Id(postId: Long): List<Comment>?
+
 }

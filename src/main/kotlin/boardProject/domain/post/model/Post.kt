@@ -23,7 +23,7 @@ class Post(
     var createdAt: LocalDateTime,
 
     @ManyToOne
-    @Column(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
 
 

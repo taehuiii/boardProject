@@ -1,10 +1,10 @@
 package boardProject.domain.post.service
 
+import ModelNotFoundException
 import boardProject.domain.auth.model.Member
 import boardProject.domain.auth.repository.MemberRepository
 import boardProject.domain.exception.AlreadyDeletedException
 import boardProject.domain.exception.InvalidCredentialException
-import boardProject.domain.exception.ModelNotFoundException
 import boardProject.domain.exception.UnauthorizedAccessException
 import boardProject.domain.post.dto.post.CreatePostRequest
 import boardProject.domain.post.dto.post.PostsResponse
@@ -32,7 +32,7 @@ class PostService(
     }
 
     fun getPostById(postId: Long): PostsResponse {
-        val post = postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+        val post = postRepository.findById(postId).orElseThrow { ModelNotFoundException("Post", postId) }
         if (post.isDeleted()) {
             throw AlreadyDeletedException(itemId = postId)
         }
@@ -106,7 +106,7 @@ class PostService(
     fun validateAuthor(postId: Long, accessInfo: Member): Post {
 
         val post =
-            postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("post", postId)
+            postRepository.findById(postId).orElseThrow { ModelNotFoundException("Post", postId) }
 
 
         if (post.nickname != accessInfo.nickname) {

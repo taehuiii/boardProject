@@ -1,8 +1,8 @@
 package boardProject.domain.post.service
 
+import ModelNotFoundException
 import boardProject.domain.auth.model.Member
 import boardProject.domain.exception.AlreadyDeletedException
-import boardProject.domain.exception.ModelNotFoundException
 import boardProject.domain.exception.UnauthorizedAccessException
 import boardProject.domain.post.dto.comment.CommentRequest
 import boardProject.domain.post.dto.comment.CommentsResponse
@@ -26,7 +26,7 @@ class CommentService(
         checkPostDeletedAndReturn(postId)
 
         val comments =
-            commentRepository.findCommentByPostIdOrNull(postId) ?: throw ModelNotFoundException("comment", postId)
+            commentRepository.findByPost_Id(postId) ?: throw ModelNotFoundException("comment", postId)
 
         return CommentsResponse.from(comments)
     }
@@ -72,10 +72,12 @@ class CommentService(
     }
 
     fun validateAuthor(commentId: Long, accessInfo: Member): Comment {
-        val comment = commentRepository.findCommentByCommentIdOrNull(commentId) ?: throw ModelNotFoundException(
-            "comment",
-            commentId
-        )
+        val comment = commentRepository.findById(commentId).orElseThrow {
+            ModelNotFoundException(
+                "comment",
+                commentId
+            )
+        }
 
         if (accessInfo != comment.member) {
             throw UnauthorizedAccessException(itemId = commentId, memberId = accessInfo.id)
@@ -85,7 +87,7 @@ class CommentService(
     }
 
     fun checkPostDeletedAndReturn(postId: Long): Post {
-        val post = postRepository.findPostByIdOrNull(postId) ?: throw ModelNotFoundException("Post", postId)
+        val post = postRepository.findById(postId).orElseThrow { ModelNotFoundException("Post", postId) }
         if (post.isDeleted()) {
             throw AlreadyDeletedException("post is already deleted", itemId = postId)
         }
