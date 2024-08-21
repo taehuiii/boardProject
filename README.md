@@ -6,24 +6,17 @@ boardProject는 사용자가 인증하고, 게시글을 작성하며, 댓글을 
 ## 🛠 사용 기술
 
 - **Java:** 17
-- **Spring Boot:** 3.3.1
+- **Spring Boot:** 3.3.0
 - **Kotlin:** 1.9.24
 - **데이터베이스:** H2, PostgreSQL
 
 ## 🚀 주요 기능
 
-- 팀 관리: 팀을 생성하고 팀원을 추가하고, 권한을 변경하는 등의 관리를 할 수 있습니다.
-- 팀원 모집 관리: 팀원 모집글을 작성하고, 신청 내역을 확인하며 응답할 수 있습니다.
-- 경기 일정 관리: 날짜와 지역별로 경기를 일정에 맞춰 모집, 또는 신청할 수 있습니다.
-- 경기 및 팀 검색 : 원하는 날짜, 지역 별로 검색을 할 수 있습니다.
-- 팀 랭킹 : 경기 후 평가 점수를 계산하여 팀 별 랭킹을 확인할 수 있습니다.
-- 사용자 프로필 관리: 개인 정보를 편집하고, 프로필을 관리할 수 있습니다.
+- 사용자 인증 및 권한 부여
+- 게시글 생성, 조회, 수정, 삭제
+- 댓글 작성, 조회, 수정 삭제
+- JWT를 이용한 보안
 
-## 🖥️ 서비스 아키텍처
-<img width="637" alt="image" src="https://github.com/user-attachments/assets/84daf55d-fc0c-4635-b3ef-655b95860fe1">
-
-#### [ Entity Relationship Diagram ]
-<img width="500" alt="image" src="https://github.com/taehuiii/boardProject/assets/160212663/a5cafe1f-8b6f-44e9-b28c-748e9158aecb">
 
 ## 📋 사전 요구 사항
 
@@ -97,8 +90,5 @@ boardProject
 
 ***
 
-
-
-
-
-
+#### [ Entity Relationship Diagram ]
+<img width="500" alt="image" src="https://github.com/taehuiii/boardProject/assets/160212663/a5cafe1f-8b6f-44e9-b28c-748e9158aecb">
